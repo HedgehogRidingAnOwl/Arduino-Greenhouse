@@ -1,12 +1,12 @@
-
+itt
 //Relay stuff
 // light
 int relay1 = 8;
-volatile byte relayState = LOW;  // Start with this HIGH so it enters the 'turn off' state first.
+volatile byte relayState = LOW;  // Start with this LOW so it enters the 'turn on' state first.
 long unsigned timer = 0;
 // pump
 int relay2 = 7;
-volatile byte relayState2 = LOW;
+volatile byte relayState2 = LOW;  // Start with this LOW so it is off at the start
 
 //Sensor code
 const int AirValue = 465;
@@ -28,8 +28,8 @@ void setup() {
 }
 
 void loop() {
-  soilMoistureValue = analogRead(A0);
-  soilMoisturePercent = map(soilMoistureValue, AirValue, WaterValue, 0, 100);
+  soilMoistureValue = analogRead(A0); // Get soil moisture from senseor
+  soilMoisturePercent = map(soilMoistureValue, AirValue, WaterValue, 0, 100); // Convert this to a percent
   Serial.println(soilMoisturePercent);
 
   // Prints for debugging
@@ -40,27 +40,36 @@ void loop() {
     Serial.println(soilMoisturePercent);
   */
 
+  /*
+    Light turns on for 12 hours and off for 12 hours. 
+    When changing state 'timer' is set to the current time + 12 hours. When that time is hit, we check the state and flip it. Rinse and repeat. 
+  */
+
   // Light
   if ((millis() > timer)) {
     if (relayState == HIGH) {     // turn off
       digitalWrite(relay1, LOW);
       relayState = LOW;
       //timer = millis() + (5 * SECOND);
-      timer = millis() + (8 * HOUR);  //TESTING
+      timer = millis() + (12 * HOUR);  //TESTING
       Serial.println("Light OFF");
     }
     else if (relayState == LOW) { // turn on
       digitalWrite(relay1, HIGH);
       relayState = HIGH;
       //timer = millis() + (10 * SECOND);
-      timer = millis() + (16 * HOUR); //TESTING
+      timer = millis() + (12 * HOUR); //TESTING
       Serial.println("Light ON");
     }
   }
 
   // Water pump
+  /*
+    Water pump works in 1 secon bursts. Pump I own is way too powerful so we have to water, wait a second for it to soak in, then check again.
+    Checks moisture percent, if low, waters for 1 second then turns off again.
+  */
   //if (soilMoisturePercent > 80) { // Use this one for testing
-  if (soilMoisturePercent < 35) {
+  if (soilMoisturePercent < 35) { // Targetting a 35% soil moisture level
     digitalWrite(relay2, HIGH);
     relayState2 = HIGH;
     Serial.println("Pump ON");
@@ -71,5 +80,5 @@ void loop() {
 
 
   }
-  delay(200);
+  delay(2000);  // Pause and then we start the loop again in 2 seconds
 }
