@@ -1,4 +1,3 @@
-itt
 //Relay stuff
 // light
 int relay1 = 8;
@@ -73,7 +72,7 @@ void loop() {
     digitalWrite(relay2, HIGH);
     relayState2 = HIGH;
     Serial.println("Pump ON");
-    delay(1000);
+    delay(2000);
     digitalWrite(relay2, LOW);
     relayState2 = LOW;
     Serial.println("Pump OFF");
