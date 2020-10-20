@@ -1,8 +1,9 @@
 //Relay stuff
 // light
 int relay1 = 8;
-volatile byte relayState = LOW;  // Start with this LOW so it enters the 'turn on' state first.
+volatile byte relayState = HIGH;  // Start with this LOW so it enters the 'turn on' state first.
 long unsigned timer = 0;
+
 // pump
 int relay2 = 7;
 volatile byte relayState2 = LOW;  // Start with this LOW so it is off at the start
