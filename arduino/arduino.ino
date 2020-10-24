@@ -19,6 +19,11 @@ const int targetMoisture = 35;
 const unsigned long SECOND = 1000;
 const unsigned long HOUR = 3600 * SECOND;
 
+int getSoilMoisturePercent(){
+  int soilMVal = analogRead(A0); // Get soil moisture from senseor
+  return(map(soilMVal, AirValue, WaterValue, 0, 100)); // Convert this to a percent
+}
+
 void setup() {
   pinMode(relay1, OUTPUT);
   digitalWrite(relay1, LOW);
@@ -28,8 +33,7 @@ void setup() {
 }
 
 void loop() {
-  soilMoistureValue = analogRead(A0); // Get soil moisture from senseor
-  soilMoisturePercent = map(soilMoistureValue, AirValue, WaterValue, 0, 100); // Convert this to a percent
+  soilMoisturePercent = getSoilMoisturePercent(); // Convert this to a percent
   Serial.println(soilMoisturePercent);
 
   // Prints for debugging
@@ -69,15 +73,17 @@ void loop() {
     Checks moisture percent, if low, waters for 1 second then turns off again.
   */
   //if (soilMoisturePercent > 80) { // Use this one for testing
-  if (soilMoisturePercent < 35) { // Targetting a 35% soil moisture level
+  if (soilMoisturePercent < 25) { // Targetting a min 25% soil moisture level
     digitalWrite(relay2, HIGH);
     relayState2 = HIGH;
     Serial.println("Pump ON");
-    delay(2000);
+    do{
+      delay(500)
+      soilMoisturePercent = getSoilMoisturePercent();
+    }while (soilMoisturePercent < 35);  //Keep going until we hit 35%
     digitalWrite(relay2, LOW);
     relayState2 = LOW;
     Serial.println("Pump OFF");
-
 
   }
   delay(2000);  // Pause and then we start the loop again in 2 seconds
