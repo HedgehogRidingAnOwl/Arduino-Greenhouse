@@ -78,7 +78,7 @@ void loop() {
     relayState2 = HIGH;
     Serial.println("Pump ON");
     do{
-      delay(500)
+      delay(500);
       soilMoisturePercent = getSoilMoisturePercent();
     }while (soilMoisturePercent < 35);  //Keep going until we hit 35%
     digitalWrite(relay2, LOW);
