@@ -1,7 +1,7 @@
 //Relay stuff
 // light
 int relay1 = 8;
-volatile byte relayState = HIGH;  // Start with this LOW so it enters the 'turn on' state first.
+volatile byte relayState = HIGH;  // Start with this HIGH so it enters the 'turn off' state first.
 long unsigned timer = 0;
 
 // pump
@@ -14,6 +14,9 @@ const int WaterValue = 210;
 int soilMoistureValue = 0;
 int soilMoisturePercent = 0;
 const int targetMoisture = 35;
+
+//Light on startup
+int lightpin = 3;
 
 //General
 const unsigned long SECOND = 1000;
@@ -29,7 +32,18 @@ void setup() {
   digitalWrite(relay1, LOW);
   pinMode(relay2, OUTPUT);
   digitalWrite(relay2, LOW);
+
+  pinMode(lightpin, INPUT);
+
+  if(digitalRead(lightpin) == LOW){  // If our switch is open (jumper not in place)
+    relayState = LOW;             // We set this to HIGH so our light will enter on state at start
+  }
+  else{
+    relayState = HIGH;
+  }
+  
   Serial.begin(9600);
+
 }
 
 void loop() {
