@@ -1,27 +1,37 @@
-//Relay stuff
+//////////////////////////////
+// START USER CONFIG 
+//////////////////////////////
+
 // light
-int relay1 = 8;
-volatile byte relayState = HIGH;  // Start with this HIGH so it enters the 'turn off' state first.
-long unsigned timer = 0;
-
-// pump
-int relay2 = 7;
-volatile byte relayState2 = LOW;  // Start with this LOW so it is off at the start
-
-//Sensor code
-const int AirValue = 465;
-const int WaterValue = 210;
-int soilMoistureValue = 0;
-int soilMoisturePercent = 0;
-const int targetMoistureLow = 35;
-const int targetMoistureHigh = 45;
+int relayLight =                8;
+volatile byte relayLightState = LOW;  // Start with this LOW so it enters the 'turn off' state first.
 
 //Light on startup
-int lightpin = 3;
+int lightPin =                  3;
+
+// pump
+int relayPump =                 7;
+
+//Sensor code
+const int AirValue =            465;
+const int WaterValue =          210;
+const int targetMoistureLow =   35;
+const int targetMoistureHigh =  45;
+
+
+//////////////////////////////
+// END USER CONFIG
+//////////////////////////////
 
 //General
 const unsigned long SECOND = 1000;
 const unsigned long HOUR = 3600 * SECOND;
+
+long unsigned timer = 0;
+volatile byte relayPumpState = LOW;  // Start with this LOW so it is off at the start
+
+int soilMoistureValue = 0;
+int soilMoisturePercent = 0;
 
 int getSoilMoisturePercent(){
   int soilMVal = analogRead(A0); // Get soil moisture from senseor
@@ -29,18 +39,20 @@ int getSoilMoisturePercent(){
 }
 
 void setup() {
-  pinMode(relay1, OUTPUT);
-  digitalWrite(relay1, LOW);
-  pinMode(relay2, OUTPUT);
-  digitalWrite(relay2, LOW);
+  pinMode(relayLight, OUTPUT);
+  digitalWrite(relayLight, LOW);
+  pinMode(relayPump, OUTPUT);
+  digitalWrite(relayPump, LOW);
 
-  pinMode(lightpin, INPUT);
+  pinMode(lightPin, INPUT);
 
-  if(digitalRead(lightpin) == LOW){  // If our switch is open (jumper not in place)
-    relayState = LOW;             // We set this to HIGH so our light will enter on state at start
-  }
-  else{
-    relayState = HIGH;
+  if(digitalRead(lightPin) == HIGH){    // If our switch is closed (jumper in place) 
+    if(relayLightState == HIGH){
+      relayLightState = LOW;            // We set this to HIGH so our light will enter on state at start
+    }
+    else{
+      relayLightState = HIGH;
+    }
   }
   
   Serial.begin(9600);
@@ -51,14 +63,6 @@ void loop() {
   soilMoisturePercent = getSoilMoisturePercent(); // Convert this to a percent
   Serial.println(soilMoisturePercent);
 
-  // Prints for debugging
-  /*
-    Serial.println("Moisture value:");
-    Serial.println(soilMoistureValue);
-    Serial.println("Moisture percent:");
-    Serial.println(soilMoisturePercent);
-  */
-
   /*
     Light turns on for 12 hours and off for 12 hours. 
     When changing state 'timer' is set to the current time + 12 hours. When that time is hit, we check the state and flip it. Rinse and repeat. 
@@ -66,16 +70,16 @@ void loop() {
 
   // Light
   if ((millis() > timer)) {
-    if (relayState == HIGH) {     // turn off
-      digitalWrite(relay1, LOW);
-      relayState = LOW;
+    if (relayLightState == HIGH) {     // turn off
+      digitalWrite(relayLight, LOW);
+      relayLightState = LOW;
       //timer = millis() + (5 * SECOND);
       timer = millis() + (12 * HOUR);  //TESTING
       Serial.println("Light OFF");
     }
-    else if (relayState == LOW) { // turn on
-      digitalWrite(relay1, HIGH);
-      relayState = HIGH;
+    else if (relayLightState == LOW) { // turn on
+      digitalWrite(relayLight, HIGH);
+      relayLightState = HIGH;
       //timer = millis() + (10 * SECOND);
       timer = millis() + (12 * HOUR); //TESTING
       Serial.println("Light ON");
@@ -89,15 +93,15 @@ void loop() {
   */
   //if (soilMoisturePercent > 80) { // Use this one for testing
   if (soilMoisturePercent < targetMoistureLow) { // If we high our lower moisture boundry 
-    digitalWrite(relay2, HIGH);
-    relayState2 = HIGH;
+    digitalWrite(relayPump, HIGH);
+    relayPumpState = HIGH;
     Serial.println("Pump ON");
     do{
       delay(500);
       soilMoisturePercent = getSoilMoisturePercent();
     }while (soilMoisturePercent < targetMoistureHigh);  // Keep going until we hit our high %
-    digitalWrite(relay2, LOW);
-    relayState2 = LOW;
+    digitalWrite(relayPump, LOW);
+    relayPumpState = LOW;
     Serial.println("Pump OFF");
 
   }
