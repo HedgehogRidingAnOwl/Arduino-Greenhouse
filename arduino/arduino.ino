@@ -33,6 +33,7 @@ volatile byte relayPumpState = LOW;  // Start with this LOW so it is off at the 
 int soilMoistureValue = 0;
 int soilMoisturePercent = 0;
 
+// Reads soil moisture level and returns as a %
 int getSoilMoisturePercent(){
   int soilMVal = analogRead(A0); // Get soil moisture from senseor
   return(map(soilMVal, AirValue, WaterValue, 0, 100)); // Convert this to a percent
@@ -46,6 +47,8 @@ void setup() {
 
   pinMode(lightPin, INPUT);
 
+  // Messy and need to fix. Code does not handle the light's state in a logical way at multiple points. 
+  // Description in user config section is functionally correct but technically oh so very wrong
   if(digitalRead(lightPin) == HIGH){    // If our switch is closed (jumper in place) 
     if(relayLightState == HIGH){
       relayLightState = LOW;            // We set this to HIGH so our light will enter on state at start
@@ -88,10 +91,8 @@ void loop() {
 
   // Water pump
   /*
-    Water pump works in 1 secon bursts. Pump I own is way too powerful so we have to water, wait a second for it to soak in, then check again.
-    Checks moisture percent, if low, waters for 1 second then turns off again.
+    Water pump runs continuously starting when the lower bound is reached until the upper moisture boundary is reached. 
   */
-  //if (soilMoisturePercent > 80) { // Use this one for testing
   if (soilMoisturePercent < targetMoistureLow) { // If we high our lower moisture boundry 
     digitalWrite(relayPump, HIGH);
     relayPumpState = HIGH;
