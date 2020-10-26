@@ -3,20 +3,20 @@
 //////////////////////////////
 
 // light
-int relayLight =                8;
+int relayLight =                8;    // Pin controlling relay connect to light
 volatile byte relayLightState = LOW;  // Start with this LOW so it enters the 'turn off' state first.
 
 //Light on startup
-int lightPin =                  3;
+int lightPin =                  3;    // Pin that inverses behavior of light on startup when it reads LOW
 
 // pump
-int relayPump =                 7;
+int relayPump =                 7;    // Pin controlling relay connected to water pump
 
 //Sensor code
-const int AirValue =            465;
-const int WaterValue =          210;
-const int targetMoistureLow =   35;
-const int targetMoistureHigh =  45;
+const int AirValue =            465;  // Value found by suspending soil moisture sensor in air
+const int WaterValue =          210;  // Value found by suspending soil moisture sensor in water
+const int targetMoistureLow =   35;   // Lower bound of target range for soil moisture
+const int targetMoistureHigh =  45;   // Upper bound of target range for soil moisture
 
 
 //////////////////////////////
