@@ -13,7 +13,8 @@ const int AirValue = 465;
 const int WaterValue = 210;
 int soilMoistureValue = 0;
 int soilMoisturePercent = 0;
-const int targetMoisture = 35;
+const int targetMoistureLow = 35;
+const int targetMoistureHigh = 45;
 
 //Light on startup
 int lightpin = 3;
@@ -87,14 +88,14 @@ void loop() {
     Checks moisture percent, if low, waters for 1 second then turns off again.
   */
   //if (soilMoisturePercent > 80) { // Use this one for testing
-  if (soilMoisturePercent < 25) { // Targetting a min 25% soil moisture level
+  if (soilMoisturePercent < targetMoistureLow) { // If we high our lower moisture boundry 
     digitalWrite(relay2, HIGH);
     relayState2 = HIGH;
     Serial.println("Pump ON");
     do{
       delay(500);
       soilMoisturePercent = getSoilMoisturePercent();
-    }while (soilMoisturePercent < 35);  //Keep going until we hit 35%
+    }while (soilMoisturePercent < targetMoistureHigh);  // Keep going until we hit our high %
     digitalWrite(relay2, LOW);
     relayState2 = LOW;
     Serial.println("Pump OFF");
